@@ -20,19 +20,19 @@ jobs:
         run: |
           choco install dotnetfx --version=4.6.1 -y
 
-      # Step 3: Build solution using MSBuild from Visual Studio
+      # Step 3: Build solution with MSBuild
       - name: Build solution
-        shell: pwsh  # Use PowerShell to access VS Developer Command Prompt
+        shell: cmd
         run: |
-          "& 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat'"
-          msbuild Mines-Casino.sln /p:Configuration=Release
+          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat" ^
+          && msbuild Mines-Casino.sln /p:Configuration=Release
 
       # Step 4: Run tests (Optional: remove if not applicable)
       - name: Run tests
-        shell: pwsh
+        shell: cmd
         run: |
-          "& 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat'"
-          vstest.console.exe **\*.Tests.dll --logger:trx
+          "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat" ^
+          && vstest.console.exe **\*.Tests.dll --logger:trx
 
       # Step 5: Upload build artifacts (Optional: save compiled files for download)
       - name: Upload build artifacts
