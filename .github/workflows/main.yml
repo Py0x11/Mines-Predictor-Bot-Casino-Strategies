@@ -1,52 +1,41 @@
-name: Star
+name: Build Mines-Casino
 
 on:
-
   push:
     branches:
-      - main
-      
-  schedule:
-  - cron: "* * * * *"
+      - main  # Trigger on pushes to the main branch
+  pull_request:  # Trigger on pull requests
 
 jobs:
-  auto_commit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-         persist-credentials: false
-         fetch-depth: 0
+  build:
+    runs-on: windows-latest  # Use a Windows runner with Visual Studio pre-installed
 
-      - name: Modify last update
-        run: |
-          d='DATE '`date '+%Y-%m-%d %H:%M:%S'`
-          echo $d > LOG
-          
-      - name: Commit changes
-        run: | 
-          git config --local user.email "ischhfd83@rambler.ru"
-          git config --local user.name "${{ github.repository_owner }}"
-          git add -A
-          
-          arr[0]="LOG"
-          arr[1]="LOG"
-          arr[2]="LOG"
-          arr[3]="LOG"
-          arr[4]="LOG"
-          arr[5]="LOG"
-          arr[6]="LOG"
-          arr[7]="LOG"
-          arr[8]="LOG"
-          arr[9]="LOG"
-          
-          rand=$[$RANDOM % ${#arr[@]}]
-          
-          git commit -m "${arr[$rand]}"
-          
-      - name: GitHub Push
-        uses: ad-m/github-push-action@master
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
         with:
-          force: true
-          directory: "."
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dotnet-version: '7.x'  # Specify the required .NET version
+
+      # Step 3: Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore Mines-Casino.sln
+
+      # Step 4: Build the solution
+      - name: Build solution
+        run: dotnet build Mines-Casino.sln --configuration Release
+
+      # Step 5: Run tests (optional, remove if not applicable)
+      - name: Run tests
+        run: dotnet test Mines-Casino.sln --configuration Release
+
+      # Step 6: Save build artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: '**/bin/Release/'  # Upload all files in the Release directories
