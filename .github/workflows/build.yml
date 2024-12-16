@@ -1,0 +1,29 @@
+name: Build Mines-Casino
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Mines-Casino.sln
+
+      - name: Build solution
+        run: dotnet build Mines-Casino.sln --configuration Release
+
+      - name: Run tests
+        run: dotnet test Mines-Casino.sln --configuration Release
