@@ -3,39 +3,36 @@ name: Build Mines-Casino
 on:
   push:
     branches:
-      - main  # Trigger on pushes to the main branch
-  pull_request:  # Trigger on pull requests
+      - main  # Trigger workflow on pushes to the main branch
+  pull_request:  # Trigger workflow on pull requests
 
 jobs:
   build:
     runs-on: windows-latest  # Use a Windows runner with Visual Studio pre-installed
 
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Setup .NET SDK
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '7.x'  # Specify the required .NET version
+      # Step 2: Install .NET Framework 4.6.1 Developer Pack
+      - name: Install .NET Framework 4.6.1 Developer Pack
+        run: |
+          choco install dotnetfx --version=4.6.1 -y
 
-      # Step 3: Restore dependencies
-      - name: Restore dependencies
-        run: dotnet restore Mines-Casino.sln
-
-      # Step 4: Build the solution
+      # Step 3: Build solution with MSBuild
       - name: Build solution
-        run: dotnet build Mines-Casino.sln --configuration Release
+        run: |
+          msbuild Mines-Casino.sln /p:Configuration=Release
 
-      # Step 5: Run tests (optional, remove if not applicable)
+      # Step 4: Run tests (Optional: remove if not applicable)
       - name: Run tests
-        run: dotnet test Mines-Casino.sln --configuration Release
+        run: |
+          vstest.console.exe **\*.Tests.dll --logger:trx
 
-      # Step 6: Save build artifacts
+      # Step 5: Upload build artifacts (Optional: save compiled files for download)
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts
-          path: '**/bin/Release/'  # Upload all files in the Release directories
+          path: '**/bin/Release/'
